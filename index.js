@@ -1,17 +1,44 @@
 require('dotenv').config();
-const axios = require('axios');
-axios({
-  method: 'get',
-  baseUrl: 'https://api.twitter.com/',
-  url: 'oauth/request_token'
-  headers: {
-    'Authorization': 'OAuth',
-    'oauth_consumer_key': process.env.API_KEY,
+const express = require('express');
+const app = express();
 
-  }
+const Twitter = require('twitter-lite');
+const client = new Twitter({
+  consumer_key: process.env.API_KEY,
+  consumer_secret: process.env.API_KEY_SECRET,
 });
 
+app.listen(5500, () => console.log('listening on port 5500'));
 
-curl --request POST \
-  --url 'https://api.twitter.com/oauth/request_token?oauth_callback=$HTTP_ENCODED_CALLBACK_URL' \
-, oauth_nonce="$oauth_nonce", oauth_signature="oauth_signature", oauth_signature_method="HMAC-SHA1", oauth_timestamp="$timestamp", oauth_version="1.0"'
+app.use('/', express.static('test-site'));
+
+app.get('/twitter', (req, res) => {
+  client
+    .getRequestToken('http://127.0.0.1:5500/twitter/login')
+    .then(twRes =>
+      res.redirect(
+        `https://api.twitter.com/oauth/authenticate?oauth_token=${twRes.oauth_token}`
+      )
+    )
+    .catch(console.error);
+});
+
+app.get('/twitter/login', (req, res) => {
+  let oauthVerifier = req.query.oauth_verifier;
+  let oauthToken = req.query.oauth_token;
+  client
+    .getAccessToken({
+      oauth_verifier: oauthVerifier,
+      oauth_token: oauthToken,
+    })
+    .then(twRes => {
+      console.log({
+        accTkn: twRes.oauth_token,
+        accTknSecret: twRes.oauth_token_secret,
+        userId: twRes.user_id,
+        screenName: twRes.screen_name,
+      });
+      res.redirect('/');
+    })
+    .catch(console.error);
+});
