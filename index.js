@@ -6,7 +6,8 @@ axios({
   url: 'oauth/request_token'
   headers: {
     'Authorization': 'OAuth',
-    'oauth_consumer_key': process.env.API_KEY
+    'oauth_consumer_key': process.env.API_KEY,
+
   }
 });
 
