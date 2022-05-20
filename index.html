@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      img {
+        width: 24rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h2><a href="/twitter">Sign In</a></h2>
+    <h2><a href="/logout">Sign Out</a></h2>
+    <h1>Hello, @<span class="name"></span></h1>
+    <img src="" />
+
+    <script>
+      const img = document.querySelector('img');
+      const xhr = new XMLHttpRequest();
+      const name = document.querySelector('.name');
+      const h1 = document.querySelector('h1');
+      xhr.open('get', '/twitter/pfp');
+      xhr.responseType = 'json';
+      xhr.send();
+      xhr.addEventListener('load', () => {
+        if (xhr.response.message) {
+          h1.textContent = 'not logged in.';
+          img.remove;
+          return;
+        }
+
+        name.textContent = xhr.response.username;
+        img.src = xhr.response.profile_image_url.replace('normal', '400x400');
+      });
+    </script>
+  </body>
+</html>
